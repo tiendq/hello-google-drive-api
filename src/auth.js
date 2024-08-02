@@ -9,13 +9,29 @@ export const config = {
       authorization: {
         params: {
           access_type: 'offline',
-          include_granted_scopes: true,
           prompt: 'consent',
-          response_type: 'code'
+          response_type: 'code',
+          scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+          include_granted_scopes: true
         }
+      },
+      account(account) { // DO NOT WORK
+        // Ref: https://authjs.dev/reference/core/providers#account
+        return {
+          access_token: account.access_token,
+          expires_at: account.expires_at,
+          refresh_token: account.refresh_token,
+          scope: account.scope,
+          provider: account.provider,
+          providerAccountId: account.providerAccountId
+        };
       }
     })
   ],
+  session: {
+    strategy: 'jwt',
+    maxAge: 90 * 24 * 60 * 60
+  },
   pages: {
     error: '/auth/error',
     signIn: '/auth/signin',
@@ -28,12 +44,20 @@ export const config = {
     },
     async jwt({ token, account, profile }) {
       console.log('=== jwt:', token, account, profile);
+
+      if (account) {
+        token.access_token = account.access_token;
+        token.refresh_token = account.refresh_token; // testing only
+      }
+
       return token;
     },
     async session({ session, token }) {
       console.log('=== session:', session, token);
 
-      session.user.id = token.id;
+      session.access_token = token.access_token;
+      session.refresh_token = token.refresh_token;
+
       return session;
     }
   },
