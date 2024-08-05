@@ -17,13 +17,27 @@ async function getFiles(accessToken, refreshToken) {
   return response.data.files;
 }
 
+async function getFiles2(accessToken, refreshToken) {
+  // Ref: https://github.com/googleapis/google-auth-library-nodejs?tab=readme-ov-file
+  const client = new google.auth.OAuth2();
+  client.setCredentials({ access_token: accessToken });
+
+  const drive = google.drive({version: 'v3', auth: client});
+  const response = await drive.files.list({
+    pageSize: 25,
+    fields: 'nextPageToken, files(id, name)'
+  });
+
+  return response.data.files;
+}
+
 export default async function Dashboard() {
   const session = await auth();
 
   if (!session)
     return <div>Unauthenticated</div>;
 
-  const files = await getFiles(session.access_token, session.refresh_token);
+  const files = await getFiles2(session.access_token, session.refresh_token);
 
   return (
     <main className="flex min-h-screen flex-col items-start justify-start p-4">

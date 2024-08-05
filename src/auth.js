@@ -11,7 +11,7 @@ export const config = {
           access_type: 'offline',
           prompt: 'consent',
           response_type: 'code',
-          scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/drive.metadata.readonly',
+          scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/drive.metadata.readonly https://www.googleapis.com/auth/drive.file',
           include_granted_scopes: true
         }
       },
@@ -45,6 +45,7 @@ export const config = {
     async jwt({ token, account, profile }) {
       console.log('=== jwt:', token, account, profile);
 
+      // Ref: https://authjs.dev/guides/refresh-token-rotation
       if (account) {
         token.access_token = account.access_token;
         token.refresh_token = account.refresh_token; // testing only
